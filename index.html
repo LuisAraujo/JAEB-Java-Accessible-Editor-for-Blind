@@ -1,12 +1,73 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Teste</title>
-    </head>
-  <body>
-    <script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Responsive Voice Test</title>
+<script type='text/javascript' src='http://code.jquery.com/jquery-2.1.4.min.js'></script>
+<script type='text/javascript' src='responsive-voice-api/responsivevoice.src.js'></script>
+
+<style>
     
-    </script>
-  </body>
+    body {
+        
+        font-family: Arial;
+        
+    }
+    
+    .inline {
+        float:left;
+    }
+    
+    #framelogo {
+        margin-top:30px;
+        margin-left:30px;
+    }
+    
+    .btn{
+      border: 1px solid #555;
+      border-radius: 5px;
+      padding: 5px;
+      text-align: center;
+      border-bottom: solid 5px #555;
+      border-left: solid 5px #555;
+      min-width: 100px !important;
+    }
+    #container-press{
+      height: 50px;
+    }
+</style>
+
+<script>
+
+ 
+</script>
+
+</head>
+
+<body>
+   <h1> JAVA ACESSIBLE EDITOR FOR BLIND </h1>
+    <div id="container-press">
+      Pressionado <spen id="comando"></spen>
+    </div>
+  
+    <div>
+        <div id='waitingdiv'>
+            Loading ResponsiveVoice...<br />
+            If it doesn't load please <a href="http://caniuse.com/#feat=speech-synthesis" target="_blank">check your browser compatibility</a>
+        </div>
+
+        <div id='voicetestdiv'>
+            <textarea id="text" cols="45" rows="3"> Esse é um texto de teste.</textarea>
+            <br>
+            <input  id="playbutton" type="button" value="Play" />
+            <input  id="stopbutton" type="button" value="Stop" />
+        </div>
+    </div>
+    <!-- 
+    <iframe class="inline" id="framelogo" src="example_logo.html" frameborder="0" width="150" height="150" />
+    -->
+    
+<script type='text/javascript' src='app.js'></script>
+
+</body>
 </html>
