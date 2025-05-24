@@ -1,0 +1,11 @@
+Requisitos:
+
+informar quando é o final da linha
+informar se a linha atual é vazia
+comando de executar código
+criar console para mensagem de erro/saida/entrada
+gerar mensagem de erro com LLM
+descrição da atividade
+suporte a múltiplos arquivos
+modificar codigo php de execucao para entrada/saida de dados
+
