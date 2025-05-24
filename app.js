@@ -1,29 +1,49 @@
-window.addEventListener("keypress", checkComando);
+
+var windowReady = false;
+var voiceReady = false;
+var editor;
+var currentLine = 1;
+
+
+
 function checkComando(event){
-    console.log(event)
+    console.log(event);
     output = '';
+    
     if( event.shiftKey)
         output+="<span class='btn'>Shift </span> +";
     if( event.ctrlKey)
         output+="<span class='btn'>Ctrl </span> +";
+    
     output+=" <span class='btn'>"+event.key+" </span>";
     $("#comando").html( output );
 
-    //Exemplo: comando Shift + 1 (ler o texto)
-    if(( event.shiftKey) && (event.keyCode == 33)){
-        startVoiceText();
+    //Ctrl + 1 (ler o texto)
+    if(( event.ctrlKey) && (event.keyCode == 49)){
+        startVoiceText( parser(editor.getValue()) );
+    }
+    //Ctrl + 2 (ler o texto)
+    if(( event.ctrlKey) && (event.keyCode == 50)){
+        readCurrentLine();
+    }
+    //esc
+    if(event.keyCode == 27){
+        stopVoiceText();
     }
 
-     if(event.keyCode == 27){
-        stopVoiceText();
-     }
+    //arrow down
+    if(event.keyCode == 40)
+        gotoNextLine();
+
+     //arrow up
+    if(event.keyCode == 38)
+        gotoPriorLine();
+
 }
 
 
- var windowReady = false;
-  var voiceReady = false;
- var editor;
-  $(window).load( function() {
+$(window).load( function() {
+
 
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/clouds");
@@ -31,27 +51,34 @@ function checkComando(event){
     editor.session.setMode("ace/mode/python");
     document.getElementById('editor').style.color='#000';
 
-      windowReady = true;
-      $('#voicetestdiv').hide();
-      $('#waitingdiv').show();
+    editor.session.on('change', function(delta) {
+        var lineno = delta.start.row
+        console.log("", lineno)
+    });
 
-     
+    windowReady = true;
+    $('#voicetestdiv').hide();
+    $('#waitingdiv').show();
 
-      responsiveVoice.AddEventListener("OnLoad",function(){
-          console.log("ResponsiveVoice Loaded Callback") ;
-      });
+    responsiveVoice.AddEventListener("OnLoad",function(){
+        console.log("ResponsiveVoice Loaded Callback") ;
+    });
 
-      $("#voicecode").click(function(){
-        startVoiceText();
-      });
+    $("#voicecode").click(function(){
+        startVoiceText( parser(editor.getValue()) );
+    });
 
-  });
 
-  responsiveVoice.OnVoiceReady = function() {
-      voiceReady = true;
-      CheckLoading();
-  }
+$(window).keydown(checkComando);
 
+$("textarea").keydown(checkComando);
+
+});
+
+responsiveVoice.OnVoiceReady = function() {
+    voiceReady = true;
+    CheckLoading();
+}
 
 function CheckLoading() {
       if (voiceReady && windowReady) {
@@ -61,16 +88,16 @@ function CheckLoading() {
   }
 
 
-  function startVoiceText(){
-    responsiveVoice.speak( parser( editor.getValue() ) , "Brazilian Portuguese Female");
-  }
+function startVoiceText(text){
+    responsiveVoice.speak( text , "Brazilian Portuguese Female");
+}
 
 
-  function stopVoiceText(){
-     responsiveVoice.cancel();
-  }
+function stopVoiceText(){
+    responsiveVoice.cancel();
+}
 
-  function parser(text){
+function parser(text){
     text = text.replace("{"," sinal de chave abrindo. ");
     text = text.replace("}"," sinal de chave fechando. ");
     text =text.replace("("," sinal de parentese abrindo. ");
@@ -79,4 +106,30 @@ function CheckLoading() {
     text =text.replace(";"," ponto.  ");
 
     return text;
-  }
+}
+
+function readCurrentLine(){
+    selectionRange = editor.getSelectionRange();
+    var currentLine = selectionRange.start.row;
+    codeArray = editor.getValue().split("\n");
+    currentLineCode = codeArray[currentLine];
+    console.log(currentLineCode);
+    startVoiceText(parser(currentLineCode));
+}
+
+function gotoNextLine(){
+    var n = editor.getSession().getValue().split("\n").length; 
+    if(currentLine < n)
+        currentLine++;
+    editor.gotoLine(currentLine);
+    editor.focus();
+    startVoiceText("Linha "+currentLine);
+}
+
+function gotoPriorLine(){
+    if(currentLine>1)
+        currentLine--;
+    editor.gotoLine(currentLine);
+    editor.focus();
+    startVoiceText("Linha "+currentLine);
+}
