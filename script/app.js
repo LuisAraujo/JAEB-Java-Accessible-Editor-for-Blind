@@ -108,14 +108,14 @@ function stopVoiceText(){
 
 /* translating symbol to text representation */
 function parser(text){
-    text = text.replace("{"," sinal de chave abrindo. ");
-    text = text.replace("}"," sinal de chave fechando. ");
-    text =text.replace("("," sinal de parentese abrindo. ");
-    text =text.replace(")"," sinal de parentese fechando. ");
-    text =text.replace(";"," ponto e vírgula. ");
-    text =text.replace(";"," ponto.  ");
-    text =text.replace("\""," aspas.  ");
-    text =text.replace("'"," aspas.  ");
+    text = text.replaceAll("{"," sinal de chave abrindo. ");
+    text = text.replaceAll("}"," sinal de chave fechando. ");
+    text =text.replaceAll("("," sinal de parentese abrindo. ");
+    text =text.replaceAll(")"," sinal de parentese fechando. ");
+    text =text.replaceAll(";"," ponto e vírgula. ");
+    text =text.replaceAll(";"," ponto.  ");
+    text =text.replaceAll("\""," aspas.  ");
+    text =text.replaceAll("'"," aspas.  ");
     return text;
 }
 
