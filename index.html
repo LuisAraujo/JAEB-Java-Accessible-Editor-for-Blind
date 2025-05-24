@@ -37,11 +37,6 @@
     }
 </style>
 
-<script>
-
- 
-</script>
-
 </head>
 
 <body>
@@ -49,25 +44,27 @@
     <div id="container-press">
       Pressionado <spen id="comando"></spen>
     </div>
-  
+     <div id='voicetestdiv'>
+            <input  id="runcode" type="button" value="Play" />
+            <input id="voicecode" type="button" value="Voice">
+        </div>
+    <div id="editor" style="height: 300px; width: 400px">public void main(){}</div>
+     
     <div>
         <div id='waitingdiv'>
             Loading ResponsiveVoice...<br />
             If it doesn't load please <a href="http://caniuse.com/#feat=speech-synthesis" target="_blank">check your browser compatibility</a>
         </div>
-
-        <div id='voicetestdiv'>
-            <textarea id="text" cols="45" rows="3"> Esse é um texto de teste.</textarea>
-            <br>
-            <input  id="playbutton" type="button" value="Play" />
-            <input  id="stopbutton" type="button" value="Stop" />
-        </div>
+        
+     
+        
     </div>
     <!-- 
     <iframe class="inline" id="framelogo" src="example_logo.html" frameborder="0" width="150" height="150" />
     -->
     
 <script type='text/javascript' src='app.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
 
 </body>
 </html>

@@ -22,23 +22,27 @@ function checkComando(event){
 
  var windowReady = false;
   var voiceReady = false;
-
+ var editor;
   $(window).load( function() {
+
+    editor = ace.edit("editor");
+    editor.setTheme("ace/theme/clouds");
+    editor.setShowPrintMargin(false);
+    editor.session.setMode("ace/mode/python");
+    document.getElementById('editor').style.color='#000';
 
       windowReady = true;
       $('#voicetestdiv').hide();
       $('#waitingdiv').show();
 
-      playbutton.onclick = function() {
-          voiceText();
-      };
-
-      stopbutton.onclick = function() {
-          responsiveVoice.cancel();
-      };
+     
 
       responsiveVoice.AddEventListener("OnLoad",function(){
           console.log("ResponsiveVoice Loaded Callback") ;
+      });
+
+      $("#voicecode").click(function(){
+        startVoiceText();
       });
 
   });
@@ -58,10 +62,21 @@ function CheckLoading() {
 
 
   function startVoiceText(){
-    responsiveVoice.speak($('#text').val(), "Brazilian Portuguese Female");
+    responsiveVoice.speak( parser( editor.getValue() ) , "Brazilian Portuguese Female");
   }
 
 
   function stopVoiceText(){
      responsiveVoice.cancel();
+  }
+
+  function parser(text){
+    text = text.replace("{"," sinal de chave abrindo. ");
+    text = text.replace("}"," sinal de chave fechando. ");
+    text =text.replace("("," sinal de parentese abrindo. ");
+    text =text.replace(")"," sinal de parentese fechando. ");
+    text =text.replace(";"," ponto e vírgula. ");
+    text =text.replace(";"," ponto.  ");
+
+    return text;
   }
