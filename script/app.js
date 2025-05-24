@@ -5,7 +5,6 @@ var editor;
 var currentLine = 1;
 
 
-
 function checkComando(event){
     console.log(event);
     output = '';
@@ -18,11 +17,11 @@ function checkComando(event){
     output+=" <span class='btn'>"+event.key+" </span>";
     $("#comando").html( output );
 
-    //Ctrl + 1 (ler o texto)
+    //Ctrl + 1 (ler todo o texto)
     if(( event.ctrlKey) && (event.keyCode == 49)){
         startVoiceText( parser(editor.getValue()) );
     }
-    //Ctrl + 2 (ler o texto)
+    //Ctrl + 2 (ler o texto da linha atual)
     if(( event.ctrlKey) && (event.keyCode == 50)){
         readCurrentLine();
     }
@@ -44,6 +43,8 @@ function checkComando(event){
 
 $(window).load( function() {
 
+   
+    $(this).trigger("focus");
 
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/clouds");
@@ -55,6 +56,10 @@ $(window).load( function() {
         var lineno = delta.start.row
         console.log("", lineno)
     });
+
+    beautify = ace.require("ace/ext/beautify"); // get reference to extension
+    console.log(beautify);
+
 
     windowReady = true;
     $('#voicetestdiv').hide();
@@ -69,15 +74,18 @@ $(window).load( function() {
     });
 
 
-$(window).keydown(checkComando);
+    $(window).keydown(checkComando);
 
-$("textarea").keydown(checkComando);
+    $("textarea").keydown(checkComando);
+    $("textarea").focusout(fomatCode);
+
 
 });
 
 responsiveVoice.OnVoiceReady = function() {
     voiceReady = true;
     CheckLoading();
+    startVoiceText("Bem Vindo ao JAEB. Atividade um");
 }
 
 function CheckLoading() {
@@ -132,4 +140,8 @@ function gotoPriorLine(){
     editor.gotoLine(currentLine);
     editor.focus();
     startVoiceText("Linha "+currentLine);
+}
+
+function fomatCode(){
+    beautify.beautify(editor.session);
 }

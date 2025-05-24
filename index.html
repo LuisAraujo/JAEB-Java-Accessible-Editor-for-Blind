@@ -2,41 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="css/style.css">
 <title>Responsive Voice Test</title>
-<script type='text/javascript' src='http://code.jquery.com/jquery-2.1.4.min.js'></script>
-<script type='text/javascript' src='responsive-voice-api/responsivevoice.src.js'></script>
-
-<style>
-    
-    body {
-        
-        font-family: Arial;
-        
-    }
-    
-    .inline {
-        float:left;
-    }
-    
-    #framelogo {
-        margin-top:30px;
-        margin-left:30px;
-    }
-    
-    .btn{
-      border: 1px solid #555;
-      border-radius: 5px;
-      padding: 5px;
-      text-align: center;
-      border-bottom: solid 5px #555;
-      border-left: solid 5px #555;
-      min-width: 100px !important;
-    }
-    #container-press{
-      height: 50px;
-    }
-</style>
-
 </head>
 
 <body>
@@ -49,7 +16,7 @@
         <input id="voicecode" type="button" value="Voice">
     </div>
 
-    <div id="editor" style="height: 300px; width: 400px">public void main(){
+    <div id="editor" style="height: 300px; width: 100%">public void main(){
         System.out.println("Teste");
     }</div>
      
@@ -58,14 +25,22 @@
             Loading ResponsiveVoice...<br />
             If it doesn't load please <a href="http://caniuse.com/#feat=speech-synthesis" target="_blank">check your browser compatibility</a>
         </div>
-
     </div>
-    <!-- 
-    <iframe class="inline" id="framelogo" src="example_logo.html" frameborder="0" width="150" height="150" />
-    -->
-    
-<script type='text/javascript' src='app.js'></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
 
+    <div id="commands-list">
+        <h3>Comandos</h3>
+        <div><span class='btn'>Ctrl</span> +   <span class='btn'>1</span> <span>Ler todas as linhas do arquivo atual.</span></div>
+        <div><span class='btn'>Ctrl</span> +   <span class='btn'>2</span> <span>Ler a linha atual.</span></div>
+        <div><span class='btn'>Seta Cima</span> <span>Ir para a linha de cima.</span></div>
+        <div><span class='btn'>Seta Baixo</span> <span>Ir para a linha de baixo.</span></div>
+        <div><span class='btn'>?</span> <span>Executar o código.</span></div>
+        <div><span class='btn'>Esc</span> <span>Cancela a leitura.</span></div>
+    </div>
+
+<script type='text/javascript' src='http://code.jquery.com/jquery-2.1.4.min.js'></script>
+<script type='text/javascript' src='script/responsivevoice.src.js'></script>
+<script type='text/javascript' src='script/app.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.3/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ext-beautify.js" type="text/javascript" charset="utf-8"></script>
 </body>
 </html>
