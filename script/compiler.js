@@ -1,7 +1,6 @@
 function createFile(code, callback, callback2){
     $.post( "backend/newfile.php", {code: code}, 
     function( data ) {
-        console.log(data);
         var json = JSON.parse(data);
         if(json.status == "ok")
             callback(json);
@@ -15,7 +14,6 @@ function createFile(code, callback, callback2){
 function executeCode(namefile, callback, callback2){
      $.post( "backend/compiler.php", {namefile: namefile}, 
     function( data ) {
-        console.log(data);
         var json = JSON.parse(data);
         if(json.status == "compiled")
            callback(json);

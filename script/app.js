@@ -8,7 +8,6 @@ var alt = false;
 
 /* event key up*/
 function keyupEvent(event){
-    console.log("up", event.keyCode)
     if(event.keyCode == 18){
         alt = false;
           editor.setReadOnly(false);
@@ -23,7 +22,6 @@ function checkComando(event){
     //Alt
     if(event.keyCode == 18){
         alt = true;
-        console.log("focus...")
         editor.setReadOnly(true);
     }else{
 
@@ -59,25 +57,30 @@ function checkComando(event){
             gotoPriorLine();
 
         if(event.keyCode == 39){
-           readCurrentChar();
-           if(checkEndLine()){
-                startVoiceText("Fim da linha. ");
-            }
-            if(checkStartLine()){
-                startVoiceText("Início da linha seguinte. ");
-                currentLine++;
-            }
+           readCurrentChar( function(){
+                if(checkEndLine()){
+                    startVoiceText("Fim da linha. ");
+                }
+                if(checkStartLine()){
+                    startVoiceText("Início da linha seguinte. ");
+                     currentLine =  editor.getCursorPosition().row;
+                }
+           });
+
+           
         }
 
         if(event.keyCode == 37){
-            readCurrentChar();
-            if(checkStartLine()){
-                startVoiceText("Início da linha. ");
-            }
-            if(checkEndLine()){
-                startVoiceText("Fim da linha seguinte. ");
-                currentLine--;
-            }
+            readCurrentChar(function(){
+                if(checkStartLine()){
+                    startVoiceText("Início da linha. ");
+                }
+                if(checkEndLine()){
+                    startVoiceText("Fim da linha anterior. ");
+                     currentLine =  editor.getCursorPosition().row;
+                }
+            });
+        
         }
 
     }
@@ -107,9 +110,11 @@ $(window).load( function() {
     document.getElementById('editor').style.color='#000';
     editor.session.on('change', function(delta) {
         var lineno = delta.start.row
-        console.log("", lineno)
+        readCurrentChar2();
     });
     beautify = ace.require("ace/ext/beautify"); // get reference to extension
+    //remove auto complete
+    editor.setBehavioursEnabled(false);
 
     windowReady = true;
     $('#voicetestdiv').hide();
@@ -117,10 +122,7 @@ $(window).load( function() {
 
     responsiveVoice.setDefaultVoice("Brazilian Portuguese Female");
 
-    //adding event onloand to responsive voice
-    responsiveVoice.AddEventListener("OnLoad",function(){
-        console.log("ResponsiveVoice Loaded Callback") ;
-    });
+
 
     //click in voice button
     $("#voicecode").click(function(){
@@ -156,7 +158,6 @@ function CheckLoading() {
 
 /* start voic reading the text */
 function startVoiceText(text){
-    console.log("called");
     responsiveVoice.speak( text);
 }
 
@@ -200,31 +201,33 @@ function isEmptyLine(line){
 /*Go to next line in ace editor*/
 function gotoNextLine(){
     var n = editor.getSession().getValue().split("\n").length; 
-    if(currentLine < n)
-        currentLine++;
-    editor.gotoLine(currentLine);
+    //if(currentLine < n)
+    //    currentLine++;
+    currentLine =  editor.getCursorPosition().row;
+    //editor.gotoLine(currentLine);
     editor.focus();
 
      var lineCode = getCurrentLine();
     if(isEmptyLine(lineCode))
-        startVoiceText("Linha "+currentLine +". Aviso: está linha esta vazia! ");
+        startVoiceText("Linha "+ (currentLine+1) +". Aviso: está linha esta vazia! ");
     else
-        startVoiceText("Linha "+currentLine);
+        startVoiceText("Linha "+(currentLine+1));
 
    
 }
 /*go to prior line in ace editor*/
 function gotoPriorLine(){
-    if(currentLine>1)
-        currentLine--;
-    editor.gotoLine(currentLine);
+    //if(currentLine>1)
+      //  currentLine--;
+    currentLine =  editor.getCursorPosition().row;
+    //editor.gotoLine(currentLine);
     editor.focus();
 
     var lineCode = getCurrentLine();
     if(isEmptyLine(lineCode))
-        startVoiceText("Linha "+currentLine +". Aviso está linha esta vazia!");
+        startVoiceText("Linha "+(currentLine+1) +". Aviso está linha esta vazia!");
     else
-        startVoiceText("Linha "+currentLine);
+        startVoiceText("Linha "+(currentLine+1));
 }
 /* call beautify funcion of ace*/
 function fomatCode(){
@@ -257,14 +260,12 @@ function run(){
 }
 
 function showError(msg){
-    console.log(msg);
     startVoiceText("Mensagem de erro: "+msg.message+". ");
    
 }
 
 
 function showOutput(msg){
-    console.log(msg);
     startVoiceText("Saida: "+msg.output+". ");
   
 }
@@ -286,13 +287,31 @@ function focusEditor(){
     editor.gotoLine(currentLine, 0);
 }
 
-function readCurrentChar(){
-   // editor.getCursorPosition().row;
-    var currentCol = editor.getCursorPosition().column-1;
+function readCurrentChar(callback){
 
+
+    var currentCol = editor.getCursorPosition().column-1;
+    if(currentCol >= 0){
+        selectionRange = editor.getSelectionRange();
+        var currentLine = selectionRange.start.row;
+        codeArray = editor.getValue().split("\n");
+        currentChar = codeArray[currentLine][currentCol];
+        if(currentChar != "");
+            startVoiceText(parser(currentChar));
+    }
+
+    callback();
+}
+
+function readCurrentChar2(){
+   // editor.getCursorPosition().row;
+    var currentCol = editor.getCursorPosition().column;
+    if(currentCol < 0)
+        return;
     selectionRange = editor.getSelectionRange();
     var currentLine = selectionRange.start.row;
     codeArray = editor.getValue().split("\n");
     currentChar = codeArray[currentLine][currentCol];
-    startVoiceText(parser(currentChar));
+    if( (currentChar != "") && (currentChar != undefined))
+        startVoiceText(parser(currentChar));
 }

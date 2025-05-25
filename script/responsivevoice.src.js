@@ -700,7 +700,7 @@ if (typeof responsiveVoice != 'undefined') {
                             console.log(e);
                         };
                     }
-                    console.log(msg);				
+                    //console.log(msg);				
                     //setTimeout(function(){
                     speechSynthesis.speak(msg);
                     //},0);
