@@ -1,9 +1,5 @@
-import java.util.Scanner;  // Import the Scanner class
-
-public class Teste {
-    public static void main(String[] args) {
-        Scanner myObj = new Scanner(System.in);
-        String s =  myObj.nextLine();
-        System.out.println(s);
-    }
+publicclassTeste{
+	publicstaticvoidman(String[]args){
+		System.out.println("Teste");
+	}
 }

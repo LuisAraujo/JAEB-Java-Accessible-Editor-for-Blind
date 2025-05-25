@@ -3,44 +3,70 @@ var windowReady = false;
 var voiceReady = false;
 var editor;
 var currentLine = 1;
+var alt = false;
+
+
+/* event key up*/
+function keyupEvent(event){
+    console.log("up", event.keyCode)
+    if(event.keyCode == 18){
+        alt = false;
+          editor.setReadOnly(false);
+    }
+}
 
 /* event to get key command*/
 function checkComando(event){
-    console.log(event);
-    output = '';
 
-    //show representation button pressed
-    if( event.shiftKey)
-        output+="<span class='btn'>Shift </span> +";
-    if( event.ctrlKey)
-        output+="<span class='btn'>Ctrl </span> +";
+    showButton(event);
     
+    //Alt
+    if(event.keyCode == 18){
+        alt = true;
+        console.log("focus...")
+        editor.setReadOnly(true);
+    }else{
+
+        //Alt + 1 (ler todo o texto)
+        if(( alt ) && (event.keyCode == 49)){
+            startVoiceText( getMenu() );
+        }
+        //Alt + 2 (ler todo o texto)
+        if(( alt ) && (event.keyCode == 50)){
+            startVoiceText( parser(editor.getValue()) );
+        }
+        //Alt + 3 (ler o texto da linha atual)
+        if(( alt ) && (event.keyCode == 51)){
+            readCurrentLine();
+        }
+
+        //esc
+        if(event.keyCode == 27){
+            stopVoiceText();
+        }
+
+        //arrow down
+        if(event.keyCode == 40)
+            gotoNextLine();
+
+            //arrow up
+        if(event.keyCode == 38)
+            gotoPriorLine();
+
+    }
+}
+
+/* Show pressed button in screen */
+function showButton(event){
+    output ="";
+    //show representation button pressed
+    if( alt )
+        output+="<span class='btn'>Alt </span> +";
+
     output+=" <span class='btn'>"+event.key+" </span>";
     $("#comando").html( output );
 
-    //Ctrl + 1 (ler todo o texto)
-    if(( event.ctrlKey) && (event.keyCode == 49)){
-        startVoiceText( parser(editor.getValue()) );
-    }
-    //Ctrl + 2 (ler o texto da linha atual)
-    if(( event.ctrlKey) && (event.keyCode == 50)){
-        readCurrentLine();
-    }
-    //esc
-    if(event.keyCode == 27){
-        stopVoiceText();
-    }
-
-    //arrow down
-    if(event.keyCode == 40)
-        gotoNextLine();
-
-     //arrow up
-    if(event.keyCode == 38)
-        gotoPriorLine();
-
 }
-
 
 $(window).load( function() {
     //focus on window
@@ -62,6 +88,8 @@ $(window).load( function() {
     $('#voicetestdiv').hide();
     $('#waitingdiv').show();
 
+    responsiveVoice.setDefaultVoice("Brazilian Portuguese Female");
+
     //adding event onloand to responsive voice
     responsiveVoice.AddEventListener("OnLoad",function(){
         console.log("ResponsiveVoice Loaded Callback") ;
@@ -74,6 +102,8 @@ $(window).load( function() {
 
     //key down window to call check command
     $(window).keydown(checkComando);
+    $(window).keyup( keyupEvent );
+
     //key down textarea to call check command
     $("textarea").keydown(checkComando);
     //on focus out fomat code in ace
@@ -82,10 +112,11 @@ $(window).load( function() {
 
 });
 
+/* */
 responsiveVoice.OnVoiceReady = function() {
     voiceReady = true;
     CheckLoading();
-    startVoiceText("Bem Vindo ao JAEB. Atividade um");
+    startVoiceText("Bem Vindo ao JAEB. Pressione Alt e 1 para conhecer os comandos.");
 }
 
 /* check loading of voice */
@@ -98,7 +129,8 @@ function CheckLoading() {
 
 /* start voic reading the text */
 function startVoiceText(text){
-    responsiveVoice.speak( text , "Brazilian Portuguese Female");
+    console.log("called");
+    responsiveVoice.speak( text);
 }
 
 /* stop current voice */
@@ -119,34 +151,93 @@ function parser(text){
     return text;
 }
 
-//voice read current line
+/*voice read current line*/
 function readCurrentLine(){
+    var lineCode = getCurrentLine();
+    startVoiceText(parser(lineCode));
+}
+
+/* */
+function getCurrentLine(){
     selectionRange = editor.getSelectionRange();
     var currentLine = selectionRange.start.row;
     codeArray = editor.getValue().split("\n");
     currentLineCode = codeArray[currentLine];
-    console.log(currentLineCode);
-    startVoiceText(parser(currentLineCode));
+    return currentLineCode;
+}
+/* */
+function isEmptyLine(line){
+    return line.trim() == ""?1:0;
 }
 
-//go to next line in ace editor
+/*Go to next line in ace editor*/
 function gotoNextLine(){
     var n = editor.getSession().getValue().split("\n").length; 
     if(currentLine < n)
         currentLine++;
     editor.gotoLine(currentLine);
     editor.focus();
-    startVoiceText("Linha "+currentLine);
+
+     var lineCode = getCurrentLine();
+    if(isEmptyLine(lineCode))
+        startVoiceText("Linha "+currentLine +". Aviso: está linha esta vazia! ");
+    else
+        startVoiceText("Linha "+currentLine);
+
+   
 }
-//go to prior line in ace editor
+/*go to prior line in ace editor*/
 function gotoPriorLine(){
     if(currentLine>1)
         currentLine--;
     editor.gotoLine(currentLine);
     editor.focus();
-    startVoiceText("Linha "+currentLine);
+
+    var lineCode = getCurrentLine();
+    if(isEmptyLine(lineCode))
+        startVoiceText("Linha "+currentLine +". Aviso está linha esta vazia!");
+    else
+        startVoiceText("Linha "+currentLine);
 }
-//call beautify funcion of ace
+/* call beautify funcion of ace*/
 function fomatCode(){
     beautify.beautify(editor.session);
+}
+
+/* get text menu */
+function getMenu(){
+    text = "Lista de comandos. ";
+    text += "Pressione Alt e 2 para ler todo o código. ";
+    text += "Pressione Alt e 3 para ler o código da linha atual. ";
+    text += "Pressione Alt 4 para executar pelo código. ";
+    text += "Pressione Alt e 5 para ler a mensagem de erro. ";
+    text += "Pressione Alt e 6 para criar uma nova linha em branco abaixo da linha atual.  ";
+    text += "Pressione seta para cima e para baixo para navegar pelo código. ";
+ 
+    return text;
+}
+
+
+function run(){
+    startVoiceText("Executando. ");
+    createFile(editor.getValue(), 
+    function( json){
+        executeCode(json.name, showOutput, showError);
+    },
+    function(){
+        showErro("Ocorreu um erro inesperado. Tente novamente! ");
+    });
+}
+
+function showError(msg){
+    console.log(msg);
+    startVoiceText("Mensagem de erro: "+msg.message+". ");
+   
+}
+
+
+function showOutput(msg){
+    console.log(msg);
+    startVoiceText("Saida: "+msg.output+". ");
+  
 }
