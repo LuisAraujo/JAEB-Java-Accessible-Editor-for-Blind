@@ -204,7 +204,7 @@ function gotoNextLine(){
     //if(currentLine < n)
     //    currentLine++;
     currentLine =  editor.getCursorPosition().row;
-    //editor.gotoLine(currentLine);
+    editor.gotoLine(currentLine+1);
     editor.focus();
 
      var lineCode = getCurrentLine();
@@ -220,7 +220,7 @@ function gotoPriorLine(){
     //if(currentLine>1)
       //  currentLine--;
     currentLine =  editor.getCursorPosition().row;
-    //editor.gotoLine(currentLine);
+    editor.gotoLine(currentLine+1);
     editor.focus();
 
     var lineCode = getCurrentLine();
