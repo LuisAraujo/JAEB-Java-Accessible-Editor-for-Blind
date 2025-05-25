@@ -40,6 +40,11 @@ function checkComando(event){
             readCurrentLine();
         }
 
+        //Alt + 3 (ler o texto da linha atual)
+        if(( alt ) && (event.keyCode == 52)){
+            run();
+        }
+
         //esc
         if(event.keyCode == 27){
             stopVoiceText();
@@ -52,6 +57,26 @@ function checkComando(event){
             //arrow up
         if(event.keyCode == 38)
             gotoPriorLine();
+
+        if(event.keyCode == 39){
+           if(checkEndLine()){
+                startVoiceText("Fim da linha. ");
+            }
+            if(checkStartLine()){
+                startVoiceText("Início da linha seguinte. ");
+                currentLine++;
+            }
+        }
+
+        if(event.keyCode == 37){
+            if(checkStartLine()){
+                startVoiceText("Início da linha. ");
+            }
+            if(checkEndLine()){
+                startVoiceText("Fim da linha seguinte. ");
+                currentLine--;
+            }
+        }
 
     }
 }
@@ -107,7 +132,7 @@ $(window).load( function() {
     //key down textarea to call check command
     $("textarea").keydown(checkComando);
     //on focus out fomat code in ace
-    $("textarea").focusout(fomatCode);
+    //$("textarea").focusout(fomatCode);
 
 
 });
@@ -240,4 +265,21 @@ function showOutput(msg){
     console.log(msg);
     startVoiceText("Saida: "+msg.output+". ");
   
+}
+
+function checkEndLine(msg){
+    if(msg == undefined)
+        msg = "";
+    if( editor.getCursorPosition().column ==  editor.session.getLine(currentLine-1).length)
+        return true;
+    return false;
+}
+function checkStartLine(){
+
+    if( editor.getCursorPosition().column ==  0)
+        return true;
+    return false;
+}
+function focusEditor(){
+    editor.gotoLine(currentLine, 0);
 }
