@@ -59,6 +59,7 @@ function checkComando(event){
             gotoPriorLine();
 
         if(event.keyCode == 39){
+           readCurrentChar();
            if(checkEndLine()){
                 startVoiceText("Fim da linha. ");
             }
@@ -69,6 +70,7 @@ function checkComando(event){
         }
 
         if(event.keyCode == 37){
+            readCurrentChar();
             if(checkStartLine()){
                 startVoiceText("Início da linha. ");
             }
@@ -282,4 +284,15 @@ function checkStartLine(){
 }
 function focusEditor(){
     editor.gotoLine(currentLine, 0);
+}
+
+function readCurrentChar(){
+   // editor.getCursorPosition().row;
+    var currentCol = editor.getCursorPosition().column-1;
+
+    selectionRange = editor.getSelectionRange();
+    var currentLine = selectionRange.start.row;
+    codeArray = editor.getValue().split("\n");
+    currentChar = codeArray[currentLine][currentCol];
+    startVoiceText(parser(currentChar));
 }
