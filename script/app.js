@@ -40,9 +40,14 @@ function checkComando(event){
             readCurrentLine();
         }
 
-        //Alt + 3 (ler o texto da linha atual)
+        //Alt + 4 (ler o texto da linha atual)
         if(( alt ) && (event.keyCode == 52)){
             run( getNameClasse() );
+        }
+
+        //Alt + 5 (ler mensagem atual)
+        if(( alt ) && (event.keyCode == 53)){
+            readCurrentMessage();
         }
 
         //del
@@ -175,6 +180,7 @@ function stopVoiceText(){
 /* translating symbol to text representation */
 function parser(text){
     text =text.replaceAll(" "," espaço. ");
+    text = text.replaceAll(":"," dois pontos. ");
     text = text.replaceAll("{"," sinal de chave abrindo. ");
     text = text.replaceAll("}"," sinal de chave fechando. ");
     text =text.replaceAll("("," sinal de parentese abrindo. ");
@@ -270,24 +276,29 @@ function run(name){
 
 /* Showing error message */
 function showError(msg){
-     mesg = getEnhancedMessageLLM(msg, function(msg){
+     mesg = getEnhancedMessageLLM(msg.result, function(msg){
         $("#console").html("Mensagem de erro: "+msg);
         startVoiceText("Mensagem de erro: "+msg+". ");
      });
-     
-   
+}
+
+/* reading current message show to the user */
+function readCurrentMessage(){
+      startVoiceText( $("#console").text() + "  ");
 }
 
 /* Showing output */
 function showOutput(msg){
-    $("#console").html("Saida: "+msg.output);
-    startVoiceText("Saida: "+msg.output+". ");
+    $("#console").html("Saida "+msg.output);
+    startVoiceText("Saida "+msg.output+". ");
   
 }
 
 /*  */
 function getEnhancedMessageLLM(msg, callback){
-    prompt = "Crie uma mensagem de erro em português (PT-Br) simples e direta para o usuário com base na mensagem de erro original. Indique o erro e a linha\n" + msg;
+    
+    prompt = "Crie uma mensagem de erro em português (PT-Br) simples e direta para o usuário com base na mensagem de erro original. Indique o erro e a linha." + msg;
+    console.log( prompt );
     requestChatGPT(prompt, callback);
    // return msg;
 }
