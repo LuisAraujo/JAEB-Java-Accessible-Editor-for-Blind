@@ -1,5 +1,5 @@
 <?php
-$namefile = "Teste";
+$namefile = $_POST["name"];
 $code = $_POST['code'];
 $temp = fopen($namefile.".java", "w");
 $r = [];

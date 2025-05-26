@@ -10,19 +10,21 @@ var alt = false;
 function keyupEvent(event){
     if(event.keyCode == 18){
         alt = false;
-          editor.setReadOnly(false);
+        editor.setReadOnly(false);
+        $("#command-container").hide();
     }
 }
 
 /* event to get key command*/
 function checkComando(event){
-
+    console.log(event);
     showButton(event);
     
     //Alt
     if(event.keyCode == 18){
         alt = true;
         editor.setReadOnly(true);
+        $("#command-container").show();
     }else{
 
         //Alt + 1 (ler todo o texto)
@@ -40,7 +42,12 @@ function checkComando(event){
 
         //Alt + 3 (ler o texto da linha atual)
         if(( alt ) && (event.keyCode == 52)){
-            run();
+            run( getNameClasse() );
+        }
+
+        //del
+        if((event.keyCode == 8)){
+            readDeletedChar();
         }
 
         //esc
@@ -67,7 +74,6 @@ function checkComando(event){
                 }
            });
 
-           
         }
 
         if(event.keyCode == 37){
@@ -168,6 +174,7 @@ function stopVoiceText(){
 
 /* translating symbol to text representation */
 function parser(text){
+    text =text.replaceAll(" "," espaço. ");
     text = text.replaceAll("{"," sinal de chave abrindo. ");
     text = text.replaceAll("}"," sinal de chave fechando. ");
     text =text.replaceAll("("," sinal de parentese abrindo. ");
@@ -176,6 +183,7 @@ function parser(text){
     text =text.replaceAll(";"," ponto.  ");
     text =text.replaceAll("\""," aspas.  ");
     text =text.replaceAll("'"," aspas.  ");
+   
     return text;
 }
 
@@ -185,7 +193,7 @@ function readCurrentLine(){
     startVoiceText(parser(lineCode));
 }
 
-/* */
+/* get code of current line */
 function getCurrentLine(){
     selectionRange = editor.getSelectionRange();
     var currentLine = selectionRange.start.row;
@@ -247,11 +255,12 @@ function getMenu(){
     return text;
 }
 
-
-function run(){
+/* running code */
+function run(name){
+    console.log(""+name);
     startVoiceText("Executando. ");
-    createFile(editor.getValue(), 
-    function( json){
+    createFile(name, editor.getValue(), 
+    function(json){
         executeCode(json.name, showOutput, showError);
     },
     function(){
@@ -259,17 +268,30 @@ function run(){
     });
 }
 
+/* Showing error message */
 function showError(msg){
-    startVoiceText("Mensagem de erro: "+msg.message+". ");
+     mesg = getEnhancedMessageLLM(msg, function(msg){
+        $("#console").html("Mensagem de erro: "+msg);
+        startVoiceText("Mensagem de erro: "+msg+". ");
+     });
+     
    
 }
 
-
+/* Showing output */
 function showOutput(msg){
+    $("#console").html("Saida: "+msg.output);
     startVoiceText("Saida: "+msg.output+". ");
   
 }
 
+/*  */
+function getEnhancedMessageLLM(msg, callback){
+    prompt = "Crie uma mensagem de erro em português (PT-Br) simples e direta para o usuário com base na mensagem de erro original. Indique o erro e a linha\n" + msg;
+    requestChatGPT(prompt, callback);
+   // return msg;
+}
+/* checking which cursor is at end line */
 function checkEndLine(msg){
     if(msg == undefined)
         msg = "";
@@ -277,41 +299,72 @@ function checkEndLine(msg){
         return true;
     return false;
 }
+/* checking which cursor is at start line */
 function checkStartLine(){
 
     if( editor.getCursorPosition().column ==  0)
         return true;
     return false;
 }
+/*setting start file when to focus on editor*/
 function focusEditor(){
     editor.gotoLine(currentLine, 0);
 }
 
+/* read char when type */
 function readCurrentChar(callback){
 
-
     var currentCol = editor.getCursorPosition().column-1;
+    currentChar = getCurrentChar(currentCol);
     if(currentCol >= 0){
-        selectionRange = editor.getSelectionRange();
-        var currentLine = selectionRange.start.row;
-        codeArray = editor.getValue().split("\n");
-        currentChar = codeArray[currentLine][currentCol];
-        if(currentChar != "");
-            startVoiceText(parser(currentChar));
+        startVoiceText(currentChar);
     }
-
+   
     callback();
 }
 
+/* read char when delete */
 function readCurrentChar2(){
    // editor.getCursorPosition().row;
     var currentCol = editor.getCursorPosition().column;
     if(currentCol < 0)
         return;
-    selectionRange = editor.getSelectionRange();
-    var currentLine = selectionRange.start.row;
-    codeArray = editor.getValue().split("\n");
-    currentChar = codeArray[currentLine][currentCol];
-    if( (currentChar != "") && (currentChar != undefined))
-        startVoiceText(parser(currentChar));
+    currentChar = getCurrentChar(currentCol);
+    console.log(currentChar);
+    if( (currentChar != "") && (currentChar != undefined)){
+        startVoiceText(currentChar);
+    }
+}
+
+/* getting char at current cursor */
+function getCurrentChar(currentCol){
+
+        var selectionRange = editor.getSelectionRange();
+        var currentLine = selectionRange.start.row;
+        var codeArray = editor.getValue().split("\n");
+        var currentChar = codeArray[currentLine][currentCol];
+        console.log(currentChar)
+        if((currentChar != "") && (currentChar != undefined))
+            return parser(currentChar);
+        return "";
+}
+/* reading deleted char */
+function readDeletedChar(){
+    startVoiceText("Apagado ");
+}
+
+/* getting name of classe by public class token */
+function getNameClasse(){
+   var n = editor.getSession().getValue().split("\n");
+   for(let i = 0; i < n.length; i++){
+        if(n[i].includes("class")){
+            m = n[i].split(" ");
+            for(let j = 0; j < m.length; j++){
+                if(m[j] == "class"){
+                    return m[j+1];
+                }
+            }
+
+        }
+   };
 }

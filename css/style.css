@@ -26,6 +26,52 @@ body {
 #container-press{
     height: 50px;
 }
+
+#command-container{
+    display: none;
+}
+
+#commands-list{
+    min-height: 420px;
+    width: 500px;
+    position: fixed;
+    top: 100px;
+    left: calc(50% - 250px);
+    background-color: #fff;
+    border: 1px solid #222;
+    z-index: 99;
+    padding: 10px;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+    
+}
 #commands-list div{
     height: 40px;
+}
+
+#block-wall{
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    position: fixed;
+    z-index: 98;
+    top:0px;
+    left: 0px;
+}
+#console{
+    margin-top: 10px;
+    width: 100%;
+    height: 100px;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
+    background-color: black;
+    color: #fff;
+    padding: 5px;
+    font-family: 'Courier New';
 }

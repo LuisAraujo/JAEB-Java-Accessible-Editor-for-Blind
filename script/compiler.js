@@ -1,6 +1,8 @@
-function createFile(code, callback, callback2){
-    $.post( "backend/newfile.php", {code: code}, 
+function createFile(name,code, callback, callback2){
+    console.log("",name,code,)  ;
+    $.post( "backend/newfile.php", {name:name, code: code}, 
     function( data ) {
+        console.log(data);
         var json = JSON.parse(data);
         if(json.status == "ok")
             callback(json);

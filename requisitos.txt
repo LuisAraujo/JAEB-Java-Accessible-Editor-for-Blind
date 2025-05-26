@@ -1,11 +1,18 @@
 Requisitos:
 
-informar quando é o final da linha
-informar se a linha atual é vazia
-comando de executar código
+informar quando é o final da linha (ok)
+informar se a linha atual é vazia (ok)
+comando de executar código (ok)
+mensagem quando apaga um caracter (ok)
+capturar o nome da classe (ok_)
+mensagem quando cria uma nova linha
+capturar msg de erro
+
+deletar arquivo da classe após execução
 criar console para mensagem de erro/saida/entrada
 gerar mensagem de erro com LLM
 descrição da atividade
 suporte a múltiplos arquivos
 modificar codigo php de execucao para entrada/saida de dados
+c
 
