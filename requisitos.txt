@@ -5,14 +5,15 @@ informar se a linha atual é vazia (ok)
 comando de executar código (ok)
 mensagem quando apaga um caracter (ok)
 capturar o nome da classe (ok_)
-mensagem quando cria uma nova linha
-capturar msg de erro
+criar console para mensagem de erro/saida (ok)
+capturar msg de erro (ok)
+gerar mensagem de erro com LLM (ok)
 
+mensagem quando cria uma nova linha
 deletar arquivo da classe após execução
 criar console para mensagem de erro/saida/entrada
-gerar mensagem de erro com LLM
 descrição da atividade
 suporte a múltiplos arquivos
 modificar codigo php de execucao para entrada/saida de dados
-c
+
 
