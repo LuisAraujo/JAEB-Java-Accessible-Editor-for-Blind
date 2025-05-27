@@ -33,16 +33,26 @@ function checkComando(event){
         }
         //Alt + 2 (ler todo o texto)
         if(( alt ) && (event.keyCode == 50)){
-            startVoiceText( parser(editor.getValue()) );
+            var code = editor.getValue();
+            if(code == "")
+                startVoiceText("Código vazio! ");
+            else
+                startVoiceText( parser(code)  );
         }
         //Alt + 3 (ler o texto da linha atual)
         if(( alt ) && (event.keyCode == 51)){
-            readCurrentLine();
+            var code = editor.getValue();
+            if(code == "")
+                startVoiceText("Linha vazia! ");
+            else
+                readCurrentLine();
         }
 
         //Alt + 4 (ler o texto da linha atual)
         if(( alt ) && (event.keyCode == 52)){
-            run( getNameClasse() );
+            classname = getNameClasse();
+            run(  classname );
+            $("#name-file").text(classname+".java");
         }
 
         //Alt + 5 (ler mensagem atual)
@@ -75,10 +85,11 @@ function checkComando(event){
         if(event.keyCode == 40)
             gotoNextLine();
 
-            //arrow up
+        //arrow up
         if(event.keyCode == 38)
             gotoPriorLine();
-
+        
+        //arrow right
         if(event.keyCode == 39){
            readCurrentChar( function(){
                 if(checkEndLine()){
@@ -89,9 +100,9 @@ function checkComando(event){
                      currentLine =  editor.getCursorPosition().row;
                 }
            });
-
         }
 
+        //arrow left
         if(event.keyCode == 37){
             readCurrentChar(function(){
                 if(checkStartLine()){
@@ -102,7 +113,6 @@ function checkComando(event){
                      currentLine =  editor.getCursorPosition().row;
                 }
             });
-        
         }
 
     }
@@ -276,7 +286,13 @@ function getMenu(){
 function run(name){
     console.log(""+name);
     startVoiceText("Executando. ");
-    createFile(name, editor.getValue(), 
+    var code = editor.getValue();
+    if(code.trim() == ""){
+        startVoiceText("Não pode executar sem código! ");
+        return;
+    }
+
+    createFile(name, code, 
     function(json){
         executeCode(json.name, showOutput, showError);
     },
