@@ -379,8 +379,15 @@ function getNameClasse(){
         if(n[i].includes("class")){
             m = n[i].split(" ");
             for(let j = 0; j < m.length; j++){
-                if(m[j] == "class"){
-                    return m[j+1]!=undefined?m[j+1]:"Main";
+                if(m[j] == "class"){    
+                    classname = m[j+1];
+                    if( classname != undefined){
+                        classname = classname.replaceAll("{","");
+                        return classname;
+                    }else{
+                        return "Main";
+                    }
+                    
                 }
             }
 
