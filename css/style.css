@@ -1,7 +1,10 @@
 
-body {
-    
+body, html {
+    margin: 0px;
+    padding: 5px;
     font-family: Arial;
+    width: calc(100% - 10px);
+    height: 100%;
     
 }
 
@@ -24,7 +27,8 @@ body {
     min-width: 100px !important;
 }
 #container-press{
-    height: 50px;
+    height: 70px;
+    margin-top: 10px;
 }
 
 #command-container{
@@ -74,4 +78,9 @@ body {
     color: #fff;
     padding: 5px;
     font-family: 'Courier New';
+}
+
+#logo{
+    width: 220px;
+    margin-left: calc(50% - 110px);
 }

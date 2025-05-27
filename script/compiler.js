@@ -16,7 +16,9 @@ function createFile(name,code, callback, callback2){
 function executeCode(namefile, callback, callback2){
      $.post( "backend/compiler.php", {namefile: namefile}, 
     function( data ) {
+        console.log(data)
         var json = JSON.parse(data);
+        console.log(json);
         if(json.status == "compiled")
            callback(json);
         else{

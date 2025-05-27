@@ -50,6 +50,17 @@ function checkComando(event){
             readCurrentMessage();
         }
 
+        //Alt + 6 (ler descrição da atividade)
+        if(( alt ) && (event.keyCode == 54)){
+            readActivityDescription();
+        }
+
+        //Alt + 7 (ler próxima dica)
+        if(( alt ) && (event.keyCode == 55)){
+            readNextStepHint();
+        }
+
+     
         //del
         if((event.keyCode == 8)){
             readDeletedChar();
@@ -270,13 +281,13 @@ function run(name){
         executeCode(json.name, showOutput, showError);
     },
     function(){
-        showErro("Ocorreu um erro inesperado. Tente novamente! ");
+        showError("Ocorreu um erro inesperado. Tente novamente! ");
     });
 }
 
 /* Showing error message */
 function showError(msg){
-     mesg = getEnhancedMessageLLM(msg.result, function(msg){
+     mesg = getEnhancedMessageLLM(msg.message, function(msg){
         $("#console").html("Mensagem de erro: "+msg);
         startVoiceText("Mensagem de erro: "+msg+". ");
      });
@@ -284,7 +295,12 @@ function showError(msg){
 
 /* reading current message show to the user */
 function readCurrentMessage(){
+    var msg =  $("#console").text();
+    if(msg.trim() != "")
       startVoiceText( $("#console").text() + "  ");
+    else
+        startVoiceText( "Nenhuma mensagem de erro. ");
+
 }
 
 /* Showing output */
@@ -294,14 +310,6 @@ function showOutput(msg){
   
 }
 
-/*  */
-function getEnhancedMessageLLM(msg, callback){
-    
-    prompt = "Crie uma mensagem de erro em português (PT-Br) simples e direta para o usuário com base na mensagem de erro original. Indique o erro e a linha." + msg;
-    console.log( prompt );
-    requestChatGPT(prompt, callback);
-   // return msg;
-}
 /* checking which cursor is at end line */
 function checkEndLine(msg){
     if(msg == undefined)
@@ -372,10 +380,29 @@ function getNameClasse(){
             m = n[i].split(" ");
             for(let j = 0; j < m.length; j++){
                 if(m[j] == "class"){
-                    return m[j+1];
+                    return m[j+1]!=undefined?m[j+1]:"Main";
                 }
             }
 
         }
    };
+
+   return "Main";
+}
+
+
+function readActivityDescription(){
+    startVoiceText("Descrição da atividade " + getOverviewDescription() );
+}
+
+function readNextStepHint(){
+    getNextStep(steps, editor.getValue(), function(id){
+        
+        id = parseInt(id);
+        console.log(id);
+        if(id != NaN)
+            startVoiceText("A dica é " +  steps[id-1]);
+        else
+            startVoiceText("Erro ao gerar dica ");
+    });
 }

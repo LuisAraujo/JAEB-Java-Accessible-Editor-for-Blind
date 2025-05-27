@@ -7,23 +7,12 @@
 </head>
 
 <body>
-   <h1> JAVA ACESSIBLE EDITOR FOR BLIND </h1>
-    <div id="container-press">
-      Pressionado <span id="comando"></span>
-    </div>
-     <div id='voicetestdiv'>
-        <input  id="runcode" type="button" value="Play" />
-        <input id="voicecode" type="button" value="Voice">
-    </div>
+    <img src="logo.png" id="logo">
+    <div id="name-file">Teste.java</div>
+    <div id="editor" style="height: 300px; width: 100%"></div>
+    <div id="console">
 
-    <div id="editor" style="height: 300px; width: 100%">public class Teste {
-    public static void main(String[] args) {
-        System.out.println("Teste");
-    }
-}</div>
-<div id="console">
-
-</div>
+    </div>
      
     <div>
         <div id='waitingdiv'>
@@ -31,6 +20,11 @@
             If it doesn't load please <a href="http://caniuse.com/#feat=speech-synthesis" target="_blank">check your browser compatibility</a>
         </div>
     </div>
+     
+    <div id="container-press">
+      Pressionado <span id="comando"></span>
+    </div>
+
     <div id="command-container">
         <div id="block-wall"></div>
         <div id="commands-list">
@@ -40,7 +34,9 @@
             <div><span class='btn'>Alt</span> +   <span class='btn'>3</span> <span>Ler a linha atual.</span></div>
             <div><span class='btn'>Alt</span> +   <span class='btn'>4</span> <span>Executar o código.</span></div>
             <div><span class='btn'>Alt</span> +   <span class='btn'>5</span> <span>Ler a mensagem de erro</span></div>
-            <div><span class='btn'>Alt</span> +   <span class='btn'>6</span> <span>Criar nova linha</span></div>
+            <div><span class='btn'>Alt</span> +   <span class='btn'>6</span> <span>Ler a descrição da atividade</span></div>
+            <div><span class='btn'>Alt</span> +   <span class='btn'>7</span> <span>Ler a dica do próximo passo</span></div>
+            
             <div><span class='btn'>Seta Cima</span> <span>Ir para a linha de cima.</span></div>
             <div><span class='btn'>Seta Baixo</span> <span>Ir para a linha de baixo.</span></div>
             <div><span class='btn'>Esc</span> <span>Cancela a leitura.</span></div>
@@ -50,6 +46,7 @@
 <script   src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.3/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ext-beautify.js" type="text/javascript" charset="utf-8"></script>
 <script type='text/javascript' src='script/responsivevoice.src.js'></script>
+<script type='text/javascript' src='script/getdata.js'></script>
 <script type='text/javascript' src='script/requestChatGPT.js'></script>
 <script type='text/javascript' src='script/compiler.js'></script>
 <script type='text/javascript' src='script/app.js'></script>

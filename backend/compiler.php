@@ -10,8 +10,15 @@ exec($cmd, $result, $error);
 
 if($error){
     $r["status"] = "error";
-    $r["message"] = implode("\n", $result); 
-    $r["result"] = implode($result);
+    if( is_array($result) )
+            $r["message"] = implode("\n", $result); 
+        else
+            $r["message"] =  $result; 
+
+        if( is_array($error) )
+            $r["error"] = implode("\n", $error); 
+        else 
+            $r["error"] = $error; 
     echo  json_encode($r);
     return;
 }else{
@@ -25,7 +32,16 @@ if($error){
 
     if($error2){
        	$r["status"] = "error";
-         $r["message"] = implode("\n", $result); 
+        if( is_array($result) )
+            $r["message"] = implode("\n", $result); 
+        else
+            $r["message"] =  $result; 
+
+        if( is_array($error2) )
+            $r["error"] = implode("\n", $error2); 
+        else 
+            $r["error"] = $error2; 
+
         echo  json_encode($r);
         return;
     }else{
