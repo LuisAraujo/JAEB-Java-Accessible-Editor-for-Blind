@@ -4,6 +4,33 @@ var voiceReady = false;
 var editor;
 var currentLine = 1;
 var alt = false;
+//usando o speech nativo
+const synth = window.speechSynthesis;
+let msg = new SpeechSynthesisUtterance();
+let voices = synth.getVoices();
+msg.voice = voices[124];
+msg.rate = 1;
+msg.pitch = 1;
+msg.lang = "pt-BR";
+
+//array to use in parse for up cases recognition
+let arrayCharUpCase = [];
+    for (let i = 65; i <= 90; i++) {  // Códigos ASCII de A (65) a Z (90)
+        arrayCharUpCase.push(String.fromCharCode(i));
+}
+
+//array to use in parse for special characteres recognition
+arrayCharSpecials = [];     
+arrayCharSpecials.push([" "," espaço. "]);
+arrayCharSpecials.push([":"," dois pontos. "]);
+arrayCharSpecials.push(["{"," sinal de chave abrindo. "]);
+arrayCharSpecials.push(["}"," sinal de chave fechando. "]);
+arrayCharSpecials.push(["("," sinal de parentese abrindo. "]);
+arrayCharSpecials.push([")"," sinal de parentese fechando. "]);
+arrayCharSpecials.push([";"," ponto e vírgula. "]);
+arrayCharSpecials.push([";"," ponto.  "]);
+arrayCharSpecials.push(["\""," aspas.  "]);
+arrayCharSpecials.push(["'"," aspas.  "]);
 
 
 /* event key up*/
@@ -138,7 +165,7 @@ $(window).load( function() {
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/clouds");
     editor.setShowPrintMargin(false);
-    editor.session.setMode("ace/mode/python");
+    editor.session.setMode("ace/mode/java");
     document.getElementById('editor').style.color='#000';
     editor.session.on('change', function(delta) {
         var lineno = delta.start.row
@@ -147,6 +174,11 @@ $(window).load( function() {
     beautify = ace.require("ace/ext/beautify"); // get reference to extension
     //remove auto complete
     editor.setBehavioursEnabled(false);
+    editor.setOptions({
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: false
+    });
 
     windowReady = true;
     $('#voicetestdiv').hide();
@@ -193,6 +225,14 @@ function startVoiceText(text){
     responsiveVoice.speak( text);
 }
 
+
+/*function startVoiceText(text){
+
+    synth.cancel();
+    msg.text = text;
+    synth.speak(msg);
+}*/
+
 /* stop current voice */
 function stopVoiceText(){
     responsiveVoice.cancel();
@@ -200,7 +240,22 @@ function stopVoiceText(){
 
 /* translating symbol to text representation */
 function parser(text){
-    text =text.replaceAll(" "," espaço. ");
+
+    
+    for (let i = 0; i < arrayCharSpecials.length; i++) {
+        let letra = arrayCharSpecials[i];
+        console.log(letra)
+        text = text.replaceAll(letra[0], letra[1]);
+    }
+    
+    
+    for (let i = 0; i < arrayCharUpCase.length; i++) {
+        let letra = arrayCharUpCase[i];
+        text = text.replaceAll(letra, letra + " maiusculo. ");
+    }
+
+
+    /*text =text.replaceAll(" "," espaço. ");
     text = text.replaceAll(":"," dois pontos. ");
     text = text.replaceAll("{"," sinal de chave abrindo. ");
     text = text.replaceAll("}"," sinal de chave fechando. ");
@@ -209,8 +264,9 @@ function parser(text){
     text =text.replaceAll(";"," ponto e vírgula. ");
     text =text.replaceAll(";"," ponto.  ");
     text =text.replaceAll("\""," aspas.  ");
-    text =text.replaceAll("'"," aspas.  ");
-   
+    text =text.replaceAll("'"," aspas.  ");*/
+
+    console.log(text);  
     return text;
 }
 
@@ -321,8 +377,9 @@ function readCurrentMessage(){
 
 /* Showing output */
 function showOutput(msg){
-    $("#console").html("Saida "+msg.output);
-    startVoiceText("Saida "+msg.output+". ");
+
+    $("#console").html("Executado com Sucesso! Saida "+msg.output);
+    startVoiceText("Executado com Sucesso!  Saida "+msg.output+". ");
   
 }
 

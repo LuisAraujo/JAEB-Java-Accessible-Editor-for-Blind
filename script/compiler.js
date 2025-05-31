@@ -19,9 +19,9 @@ function executeCode(namefile, callback, callback2){
         console.log(data)
         var json = JSON.parse(data);
         console.log(json);
-        if(json.status == "compiled")
+        if(json.status == "compiled"){
            callback(json);
-        else{
+        }else{
             callback2(json);
         }
     });
