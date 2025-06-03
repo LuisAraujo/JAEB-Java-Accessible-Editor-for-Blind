@@ -4,6 +4,7 @@ var voiceReady = false;
 var editor;
 var currentLine = 1;
 var alt = false;
+var ctrl = true;
 //usando o speech nativo
 const synth = window.speechSynthesis;
 let msg = new SpeechSynthesisUtterance();
@@ -12,6 +13,9 @@ msg.voice = voices[124];
 msg.rate = 1;
 msg.pitch = 1;
 msg.lang = "pt-BR";
+
+
+
 
 //array to use in parse for up cases recognition
 let arrayCharUpCase = [];
@@ -39,7 +43,10 @@ function keyupEvent(event){
         alt = false;
         editor.setReadOnly(false);
         $("#command-container").hide();
+    }else if(event.keyCode == 17){
+        ctrl = false;
     }
+    
 }
 
 /* event to get key command*/
@@ -50,6 +57,10 @@ function checkComando(event){
     //Alt
     if(event.keyCode == 18){
         alt = true;
+        editor.setReadOnly(true);
+        $("#command-container").show();
+    }else if(event.keyCode == 17){
+        ctrl = true;
         editor.setReadOnly(true);
         $("#command-container").show();
     }else{
@@ -96,7 +107,26 @@ function checkComando(event){
         if(( alt ) && (event.keyCode == 55)){
             readNextStepHint();
         }
+        //Ctrl + F
+        if((ctrl) && (event.keyCode == 70)){
 
+            //busca
+            $(".ace_search_field").off("keyup");
+            $(".ace_search_field").on("keyup", function(e){
+                if(e.keyCode == 13){
+                    var text  = $(".ace_search_counter").text() ;
+                    text = text.split(" ");
+                    textout = "Econtrados " + text[2] + " elementos. ";
+                    if( parseInt( text[2].trim() ) > 0){
+                        textout += "Vocês está no elemento "+text[0]+", na linha "+ ( getCurrentLine() + 1 + ". ");
+                    }
+                    console.log( textout )
+                    startVoiceText(textout);
+                }
+            });
+
+
+        }
      
         //del
         if((event.keyCode == 8)){
@@ -244,7 +274,6 @@ function parser(text){
     
     for (let i = 0; i < arrayCharSpecials.length; i++) {
         let letra = arrayCharSpecials[i];
-        console.log(letra)
         text = text.replaceAll(letra[0], letra[1]);
     }
     
@@ -266,24 +295,34 @@ function parser(text){
     text =text.replaceAll("\""," aspas.  ");
     text =text.replaceAll("'"," aspas.  ");*/
 
-    console.log(text);  
+  
     return text;
 }
 
 /*voice read current line*/
 function readCurrentLine(){
-    var lineCode = getCurrentLine();
+    var lineCode = getTextOfCurrentLine();
     startVoiceText(parser(lineCode));
 }
 
 /* get code of current line */
-function getCurrentLine(){
+function getTextOfCurrentLine(){
     selectionRange = editor.getSelectionRange();
     var currentLine = selectionRange.start.row;
     codeArray = editor.getValue().split("\n");
     currentLineCode = codeArray[currentLine];
     return currentLineCode;
 }
+
+
+/* get code of current line */
+function getCurrentLine(){
+    selectionRange = editor.getSelectionRange();
+    var currentLine = selectionRange.start.row;
+    return currentLine;
+}
+
+
 /* */
 function isEmptyLine(line){
     return line.trim() == ""?1:0;
@@ -298,7 +337,7 @@ function gotoNextLine(){
     editor.gotoLine(currentLine+1);
     editor.focus();
 
-     var lineCode = getCurrentLine();
+     var lineCode = getTextOfCurrentLine();
     if(isEmptyLine(lineCode))
         startVoiceText("Linha "+ (currentLine+1) +". Aviso: está linha esta vazia! ");
     else
@@ -314,7 +353,7 @@ function gotoPriorLine(){
     editor.gotoLine(currentLine+1);
     editor.focus();
 
-    var lineCode = getCurrentLine();
+    var lineCode = getTextOfCurrentLine();
     if(isEmptyLine(lineCode))
         startVoiceText("Linha "+(currentLine+1) +". Aviso está linha esta vazia!");
     else
@@ -340,7 +379,7 @@ function getMenu(){
 
 /* running code */
 function run(name){
-    console.log(""+name);
+
     startVoiceText("Executando. ");
     var code = editor.getValue();
     if(code.trim() == ""){
@@ -360,7 +399,7 @@ function run(name){
 /* Showing error message */
 function showError(msg){
      mesg = getEnhancedMessageLLM(msg.message, function(msg){
-        $("#console").html("Mensagem de erro: "+msg);
+       // $("#console").html("Mensagem de erro: "+msg);
         startVoiceText("Mensagem de erro: "+msg+". ");
      });
 }
@@ -422,7 +461,7 @@ function readCurrentChar2(){
     if(currentCol < 0)
         return;
     currentChar = getCurrentChar(currentCol);
-    console.log(currentChar);
+    //console.log(currentChar);
     if( (currentChar != "") && (currentChar != undefined)){
         startVoiceText(currentChar);
     }
@@ -435,7 +474,7 @@ function getCurrentChar(currentCol){
         var currentLine = selectionRange.start.row;
         var codeArray = editor.getValue().split("\n");
         var currentChar = codeArray[currentLine][currentCol];
-        console.log(currentChar)
+        //console.log(currentChar)
         if((currentChar != "") && (currentChar != undefined))
             return parser(currentChar);
         return "";
@@ -479,7 +518,7 @@ function readNextStepHint(){
     getNextStep(steps, editor.getValue(), function(id){
         
         id = parseInt(id);
-        console.log(id);
+       // console.log(id);
         if(id != NaN)
             startVoiceText("A dica é " +  steps[id-1]);
         else
