@@ -4,7 +4,9 @@ var voiceReady = false;
 var editor;
 var currentLine = 1;
 var alt = false;
-var ctrl = true;
+var ctrl = false;
+var  autocomplete;
+var autocomplete_list = [];
 //usando o speech nativo
 const synth = window.speechSynthesis;
 let msg = new SpeechSynthesisUtterance();
@@ -13,9 +15,6 @@ msg.voice = voices[124];
 msg.rate = 1;
 msg.pitch = 1;
 msg.lang = "pt-BR";
-
-
-
 
 //array to use in parse for up cases recognition
 let arrayCharUpCase = [];
@@ -45,13 +44,26 @@ function keyupEvent(event){
         $("#command-container").hide();
     }else if(event.keyCode == 17){
         ctrl = false;
+        editor.setReadOnly(false);
     }
     
 }
 
-/* event to get key command*/
+/* event to get key command
+https://stackoverflow.com/questions/36693491/multiple-autocomplete-in-ace-js
+*/
 function checkComando(event){
-    console.log(event);
+    if( autocomplete ){
+         editor.setReadOnly(true);
+         if((event.keyCode == 49) || (event.keyCode == 50) || (event.keyCode == 51)) {
+            var word = autocomplete_list[event.keyCode-49];
+            replaceLineCode(word);
+            setTimeout(function(){editor.setReadOnly(false)}, 1000);
+            autocomplete = false;
+        }
+    
+    }
+    //console.log(event);
     showButton(event);
     
     //Alt
@@ -61,8 +73,6 @@ function checkComando(event){
         $("#command-container").show();
     }else if(event.keyCode == 17){
         ctrl = true;
-        editor.setReadOnly(true);
-        $("#command-container").show();
     }else{
 
         //Alt + 1 (ler todo o texto)
@@ -128,6 +138,29 @@ function checkComando(event){
 
         }
      
+         if((ctrl) && (event.keyCode == 32)){
+            list_autocomplete = [];
+            editor.setReadOnly(false);
+            var list = $(".ace_autocomplete .ace_line");
+            //apenas os 3 primeiros
+            for( var i = 0; i < 3; i++){
+                children = $(list[i]).children();
+                console.log( children );
+                textout = "";
+                for(var j = 0 ; j < children.length; j++){
+                    if( !$(children[j]).hasClass('ace_rightAlignedText')  )
+                       textout+= $(children[j]).text();
+                }
+                list_autocomplete.push(textout);
+            };
+
+            autoComplete( list_autocomplete);
+         }
+
+
+        
+
+
         //del
         if((event.keyCode == 8)){
             readDeletedChar();
@@ -136,6 +169,9 @@ function checkComando(event){
         //esc
         if(event.keyCode == 27){
             stopVoiceText();
+            autocomplete = false;
+            autocomplete_list = [];
+            editor.setReadOnly(false);
         }
 
         //arrow down
@@ -203,10 +239,11 @@ $(window).load( function() {
     });
     beautify = ace.require("ace/ext/beautify"); // get reference to extension
     //remove auto complete
-    editor.setBehavioursEnabled(false);
+    editor.setBehavioursEnabled(true);
+    //editor.enableEstimationTimeout = false
     editor.setOptions({
         enableBasicAutocompletion: true,
-        enableSnippets: true,
+        enableSnippets: false,
         enableLiveAutocompletion: false
     });
 
@@ -251,11 +288,9 @@ function CheckLoading() {
   }
 
 /* start voic reading the text */
-function startVoiceText(text){
-    responsiveVoice.speak( text);
+function startVoiceText(text, rate){
+    responsiveVoice.speak( text, "Brazilian Portuguese Female", {rate: 0.5});
 }
-
-
 /*function startVoiceText(text){
 
     synth.cancel();
@@ -524,4 +559,35 @@ function readNextStepHint(){
         else
             startVoiceText("Erro ao gerar dica ");
     });
+}
+
+
+function autoComplete(list){ 
+    autocomplete = true;
+    autocomplete_list = list;
+    text = "Sugestões: ";
+    for(var i = 0; i < list.length; i++){
+        text += (i+1) +" - "+list[i]+". ";
+    };
+    text += " ";
+    
+    startVoiceText(text,0.5);
+}
+
+function replaceLineCode(word){
+
+    var currentLine = getTextOfCurrentLine();
+    var replaceWords = '';
+    var currentCol = editor.getCursorPosition().column-1;
+
+    for(var i = currentCol; i >= 0; i--){
+        if(currentLine[i] == " ")
+            break;
+        replaceWords = currentLine[i]+replaceWords;
+    }
+    currentLine = currentLine.replace(replaceWords, word);
+    var Range = require("ace/range").Range
+    var row = editor.selection.lead.row;
+    editor.session.replace(new Range(row, 0, row, Number.MAX_VALUE), currentLine);
+
 }
