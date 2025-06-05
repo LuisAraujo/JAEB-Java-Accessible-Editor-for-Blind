@@ -42,7 +42,7 @@ function keyupEvent(event){
         alt = false;
         editor.setReadOnly(false);
         $("#command-container").hide();
-    }else if(event.keyCode == 17){
+    }else if((event.keyCode == 17) || (event.keyCode == 91)){
         ctrl = false;
         editor.setReadOnly(false);
     }
@@ -71,7 +71,7 @@ function checkComando(event){
         alt = true;
         editor.setReadOnly(true);
         $("#command-container").show();
-    }else if(event.keyCode == 17){
+    }else if((event.keyCode == 17) || (event.keyCode == 91)){
         ctrl = true;
     }else{
 
@@ -119,10 +119,11 @@ function checkComando(event){
         }
         //Ctrl + F
         if((ctrl) && (event.keyCode == 70)){
-
+            console.log("Ctrl F");
             //busca
             $(".ace_search_field").off("keyup");
             $(".ace_search_field").on("keyup", function(e){
+                 console.log( e )
                 if(e.keyCode == 13){
                     var text  = $(".ace_search_counter").text() ;
                     text = text.split(" ");
@@ -289,7 +290,9 @@ function CheckLoading() {
 
 /* start voic reading the text */
 function startVoiceText(text, rate){
-    responsiveVoice.speak( text, "Brazilian Portuguese Female", {rate: 0.5});
+    rate = rate==undefined?1:rate;
+    console.log(rate);
+    responsiveVoice.speak( text + " ", "Brazilian Portuguese Female", {rate: rate});
 }
 /*function startVoiceText(text){
 
@@ -401,14 +404,19 @@ function fomatCode(){
 
 /* get text menu */
 function getMenu(){
+    
     text = "Lista de comandos. ";
+    text = "Pressione Esc para cancelar ";
     text += "Pressione Alt e 2 para ler todo o código. ";
     text += "Pressione Alt e 3 para ler o código da linha atual. ";
     text += "Pressione Alt 4 para executar pelo código. ";
     text += "Pressione Alt e 5 para ler a mensagem de erro. ";
-    text += "Pressione Alt e 6 para criar uma nova linha em branco abaixo da linha atual.  ";
+    text += "Pressione Alt e 6 para ler a descrição d atividade.  ";
+    text += "Pressione Alt e 7 para obter a próxima dica.  ";
     text += "Pressione seta para cima e para baixo para navegar pelo código. ";
- 
+    text += "Pressione Control e F para pesquisar um nome ";
+    text += "Pressione Control e Esppaço para ter sugestões de autocompletar ";
+
     return text;
 }
 
@@ -434,7 +442,7 @@ function run(name){
 /* Showing error message */
 function showError(msg){
      mesg = getEnhancedMessageLLM(msg.message, function(msg){
-       // $("#console").html("Mensagem de erro: "+msg);
+        $("#console").html("Mensagem de erro: "+msg);
         startVoiceText("Mensagem de erro: "+msg+". ");
      });
 }

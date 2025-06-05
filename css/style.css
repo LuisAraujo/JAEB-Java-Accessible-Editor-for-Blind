@@ -35,11 +35,11 @@ body, html {
     display: none;
 }
 
-#commands-list{
-    min-height: 420px;
+#commands-list{ 
+    height: 560px;
     width: 500px;
     position: fixed;
-    top: 100px;
+    top: 20px;
     left: calc(50% - 250px);
     background-color: #fff;
     border: 1px solid #222;
@@ -50,6 +50,7 @@ body, html {
     -moz-border-radius: 10px;
     -ms-border-radius: 10px;
     -o-border-radius: 10px;
+    overflow: scroll;
     
 }
 #commands-list div{
