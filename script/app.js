@@ -15,6 +15,8 @@ msg.voice = voices[124];
 msg.rate = 1;
 msg.pitch = 1;
 msg.lang = "pt-BR";
+var codecash = '';
+var capslook = false;
 
 //array to use in parse for up cases recognition
 let arrayCharUpCase = [];
@@ -34,6 +36,8 @@ arrayCharSpecials.push([";"," ponto e vírgula. "]);
 arrayCharSpecials.push([";"," ponto.  "]);
 arrayCharSpecials.push(["\""," aspas.  "]);
 arrayCharSpecials.push(["'"," aspas.  "]);
+arrayCharSpecials.push(["é"," e com acento agudo.  "]);
+arrayCharSpecials.push(["ó"," o com acento agudo.  "]);
 
 
 /* event key up*/
@@ -46,6 +50,15 @@ function keyupEvent(event){
         ctrl = false;
         editor.setReadOnly(false);
     }
+    if(event.keyCode == 20){
+         capslook = event.originalEvent.getModifierState("CapsLock");
+        if(!capslook){
+            startVoiceText("capslook desativado ");
+        }
+    }
+
+
+    codecash = editor.getValue();
     
 }
 
@@ -53,6 +66,9 @@ function keyupEvent(event){
 https://stackoverflow.com/questions/36693491/multiple-autocomplete-in-ace-js
 */
 function checkComando(event){
+    
+    //console.log(event);
+
     if( autocomplete ){
          editor.setReadOnly(true);
          if((event.keyCode == 49) || (event.keyCode == 50) || (event.keyCode == 51)) {
@@ -63,9 +79,15 @@ function checkComando(event){
         }
     
     }
-    //console.log(event);
+   
     showButton(event);
     
+    if(event.keyCode == 20){
+         capslook = event.originalEvent.getModifierState("CapsLock");
+        if(capslook){
+           startVoiceText("capslook ativado. ");
+        }
+    }
     //Alt
     if(event.keyCode == 18){
         alt = true;
@@ -119,19 +141,20 @@ function checkComando(event){
         }
         //Ctrl + F
         if((ctrl) && (event.keyCode == 70)){
-            console.log("Ctrl F");
+            //console.log("Ctrl F");
             //busca
+            startVoiceText("Procurando ");
             $(".ace_search_field").off("keyup");
             $(".ace_search_field").on("keyup", function(e){
-                 console.log( e )
+                 //console.log( e )
                 if(e.keyCode == 13){
                     var text  = $(".ace_search_counter").text() ;
                     text = text.split(" ");
                     textout = "Econtrados " + text[2] + " elementos. ";
                     if( parseInt( text[2].trim() ) > 0){
-                        textout += "Vocês está no elemento "+text[0]+", na linha "+ ( getCurrentLine() + 1 + ". ");
+                        textout += "Está no elemento "+text[0]+", na  "+ getTextCurrentLine() + ". ";
                     }
-                    console.log( textout )
+                    //console.log( textout )
                     startVoiceText(textout);
                 }
             });
@@ -146,7 +169,7 @@ function checkComando(event){
             //apenas os 3 primeiros
             for( var i = 0; i < 3; i++){
                 children = $(list[i]).children();
-                console.log( children );
+                //console.log( children );
                 textout = "";
                 for(var j = 0 ; j < children.length; j++){
                     if( !$(children[j]).hasClass('ace_rightAlignedText')  )
@@ -158,13 +181,25 @@ function checkComando(event){
             autoComplete( list_autocomplete);
          }
 
+        //End
+        if((event.keyCode == 35)){
+            startVoiceText("Fim da linha "+ (getCurrentLine() + 1) )
+        }
 
-        
+        //home
+        if((ctrl) && (event.keyCode == 36)){
+            startVoiceText("Inicio o código, linha "+ (getCurrentLine() + 1) )
+        }else if((event.keyCode == 36)){
+            startVoiceText("Inicio da linha "+ (getCurrentLine() + 1) )
+        }
+
 
 
         //del
         if((event.keyCode == 8)){
-            readDeletedChar();
+            
+            readDeletedChar(codecash);
+            //readDeletedChar();
         }
 
         //esc
@@ -191,7 +226,7 @@ function checkComando(event){
                 }
                 if(checkStartLine()){
                     startVoiceText("Início da linha seguinte. ");
-                     currentLine =  editor.getCursorPosition().row;
+                    currentLine =  editor.getCursorPosition().row;
                 }
            });
         }
@@ -210,6 +245,7 @@ function checkComando(event){
         }
 
     }
+
 }
 
 /* Show pressed button in screen */
@@ -264,7 +300,7 @@ $(window).load( function() {
     //key down window to call check command
     $(window).keydown(checkComando);
     $(window).keyup( keyupEvent );
-
+   
     //key down textarea to call check command
     $("textarea").keydown(checkComando);
     //on focus out fomat code in ace
@@ -291,7 +327,7 @@ function CheckLoading() {
 /* start voic reading the text */
 function startVoiceText(text, rate){
     rate = rate==undefined?1:rate;
-    console.log(rate);
+    //console.log(rate);
     responsiveVoice.speak( text + " ", "Brazilian Portuguese Female", {rate: rate});
 }
 /*function startVoiceText(text){
@@ -339,8 +375,14 @@ function parser(text){
 
 /*voice read current line*/
 function readCurrentLine(){
-    var lineCode = getTextOfCurrentLine();
-    startVoiceText(parser(lineCode));
+    var lineCode = getNumberAndTextOfCurrentLine();
+    startVoiceText("Linha "+ (lineCode[0]+1) + " " +parser(lineCode[1]));
+}
+
+/*voice read current line*/
+function getTextCurrentLine(){
+    var lineCode = getNumberAndTextOfCurrentLine();
+    return "Linha "+ (lineCode[0]+1) + " " +parser(lineCode[1]);
 }
 
 /* get code of current line */
@@ -350,6 +392,15 @@ function getTextOfCurrentLine(){
     codeArray = editor.getValue().split("\n");
     currentLineCode = codeArray[currentLine];
     return currentLineCode;
+}
+
+/* get code of current line */
+function getNumberAndTextOfCurrentLine(){
+    selectionRange = editor.getSelectionRange();
+    var currentLine = selectionRange.start.row;
+    codeArray = editor.getValue().split("\n");
+    currentLineCode = codeArray[currentLine];
+    return [currentLine , currentLineCode];
 }
 
 
@@ -379,7 +430,7 @@ function gotoNextLine(){
     if(isEmptyLine(lineCode))
         startVoiceText("Linha "+ (currentLine+1) +". Aviso: está linha esta vazia! ");
     else
-        startVoiceText("Linha "+(currentLine+1));
+        readCurrentLine();//startVoiceText("Linha "+(currentLine+1));
 
    
 }
@@ -395,7 +446,7 @@ function gotoPriorLine(){
     if(isEmptyLine(lineCode))
         startVoiceText("Linha "+(currentLine+1) +". Aviso está linha esta vazia!");
     else
-        startVoiceText("Linha "+(currentLine+1));
+        readCurrentLine();//startVoiceText("Linha "+(currentLine+1));
 }
 /* call beautify funcion of ace*/
 function fomatCode(){
@@ -497,6 +548,22 @@ function readCurrentChar(callback){
     callback();
 }
 
+
+/* read char when type */
+function readDeletedChar(codecash){
+   
+    var currentCol = editor.getCursorPosition().column;
+    var selectionRange = editor.getSelectionRange();
+    var currentLine = selectionRange.start.row;
+    var codeArray = codecash.split("\n");
+    var currentChar = codeArray[currentLine][currentCol];
+    //console.log(codeArray[currentLine][currentCol] )
+    if(currentChar != undefined)
+        startVoiceText("Apagado " + parser(currentChar));
+    else
+        startVoiceText("Apagado espaço");
+}
+
 /* read char when delete */
 function readCurrentChar2(){
    // editor.getCursorPosition().row;
@@ -504,8 +571,9 @@ function readCurrentChar2(){
     if(currentCol < 0)
         return;
     currentChar = getCurrentChar(currentCol);
-    //console.log(currentChar);
-    if( (currentChar != "") && (currentChar != undefined)){
+    if(currentChar.includes("espaço"))
+        readLastWordTyped();
+    else if( (currentChar != "") && (currentChar != undefined)){
         startVoiceText(currentChar);
     }
 }
@@ -517,16 +585,16 @@ function getCurrentChar(currentCol){
         var currentLine = selectionRange.start.row;
         var codeArray = editor.getValue().split("\n");
         var currentChar = codeArray[currentLine][currentCol];
-        //console.log(currentChar)
+        ////console.log(currentChar)
         if((currentChar != "") && (currentChar != undefined))
             return parser(currentChar);
         return "";
 }
-/* reading deleted char */
+/* reading deleted char 
 function readDeletedChar(){
     startVoiceText("Apagado ");
 }
-
+*/
 /* getting name of classe by public class token */
 function getNameClasse(){
    var n = editor.getSession().getValue().split("\n");
@@ -561,7 +629,7 @@ function readNextStepHint(){
     getNextStep(steps, editor.getValue(), function(id){
         
         id = parseInt(id);
-       // console.log(id);
+       // //console.log(id);
         if(id != NaN)
             startVoiceText("A dica é " +  steps[id-1]);
         else
@@ -598,4 +666,13 @@ function replaceLineCode(word){
     var row = editor.selection.lead.row;
     editor.session.replace(new Range(row, 0, row, Number.MAX_VALUE), currentLine);
 
+}
+
+function readLastWordTyped(){
+    var number = getCurrentLine();
+    var lines = editor.getValue().split("\n");
+    var line = lines[number].split(" ");
+    var lastWord = line[line.length-2];
+    startVoiceText(lastWord);
+    console.log(line);
 }
