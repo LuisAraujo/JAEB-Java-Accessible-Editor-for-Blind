@@ -17,6 +17,12 @@ msg.pitch = 1;
 msg.lang = "pt-BR";
 var codecash = '';
 var capslook = false;
+var menuopcao = [
+    {lable: 'execute o código', func: startRunCode }, 
+    {lable: 'ler a mensagem de erro', func: readCurrentMessage },
+];
+var menuactive = false;
+var currentOptionMenu = -1;
 
 //array to use in parse for up cases recognition
 let arrayCharUpCase = [];
@@ -25,7 +31,7 @@ let arrayCharUpCase = [];
 }
 
 //array to use in parse for special characteres recognition
-arrayCharSpecials = [];     
+arrayCharSpecials = [];    
 arrayCharSpecials.push([" "," espaço. "]);
 arrayCharSpecials.push([":"," dois pontos. "]);
 arrayCharSpecials.push(["{"," sinal de chave abrindo. "]);
@@ -56,18 +62,26 @@ function keyupEvent(event){
             startVoiceText("capslook desativado ");
         }
     }
-
-
     codecash = editor.getValue();
-    
 }
+
+editorIsFocus = false;
 
 /* event to get key command
 https://stackoverflow.com/questions/36693491/multiple-autocomplete-in-ace-js
 */
 function checkComando(event){
-    
-    //console.log(event);
+
+    const focusedElement = document.activeElement;
+
+    if (focusedElement) {
+      if (focusedElement.className == 'ace_text-input') {
+            editorIsFocus = true;
+            console.log(editorIsFocus);
+       }else{
+            editorIsFocus = false;
+       }
+    } 
 
     if( autocomplete ){
          editor.setReadOnly(true);
@@ -77,9 +91,8 @@ function checkComando(event){
             setTimeout(function(){editor.setReadOnly(false)}, 1000);
             autocomplete = false;
         }
-    
     }
-   
+
     showButton(event);
     
     if(event.keyCode == 20){
@@ -99,7 +112,7 @@ function checkComando(event){
 
         //Alt + 1 (ler todo o texto)
         if(( alt ) && (event.keyCode == 49)){
-            startVoiceText( getMenu() );
+            activeMenu() ;
         }
         //Alt + 2 (ler todo o texto)
         if(( alt ) && (event.keyCode == 50)){
@@ -118,11 +131,19 @@ function checkComando(event){
                 readCurrentLine();
         }
 
+         //Alt + 4 (ler o texto da linha atual)
+        if((event.keyCode == 13) && (editorIsFocus)){
+            startVoiceText("nova linha ");
+        }
+
+        if((event.keyCode == 13) && (menuactive)){
+            console.log("executando");
+            menuopcao[currentOptionMenu].func();
+        }
+
         //Alt + 4 (ler o texto da linha atual)
         if(( alt ) && (event.keyCode == 52)){
-            classname = getNameClasse();
-            run(  classname );
-            $("#name-file").text(classname+".java");
+            startRunCode();
         }
 
         //Alt + 5 (ler mensagem atual)
@@ -158,11 +179,9 @@ function checkComando(event){
                     startVoiceText(textout);
                 }
             });
-
-
         }
-     
-         if((ctrl) && (event.keyCode == 32)){
+        
+        if((ctrl) && (event.keyCode == 32)){
             list_autocomplete = [];
             editor.setReadOnly(false);
             var list = $(".ace_autocomplete .ace_line");
@@ -192,12 +211,8 @@ function checkComando(event){
         }else if((event.keyCode == 36)){
             startVoiceText("Inicio da linha "+ (getCurrentLine() + 1) )
         }
-
-
-
         //del
         if((event.keyCode == 8)){
-            
             readDeletedChar(codecash);
             //readDeletedChar();
         }
@@ -208,15 +223,31 @@ function checkComando(event){
             autocomplete = false;
             autocomplete_list = [];
             editor.setReadOnly(false);
+            menuactive = false;
         }
 
         //arrow down
-        if(event.keyCode == 40)
-            gotoNextLine();
+        if(event.keyCode == 40){
+            if(menuactive){
+                 if(currentOptionMenu<menuopcao.length-1)
+                    currentOptionMenu++;
+                startVoiceText((currentOptionMenu+1) + " " + menuopcao[currentOptionMenu].lable);
+            }else{
+              gotoNextLine();
+            }
+        }
+           
 
         //arrow up
-        if(event.keyCode == 38)
-            gotoPriorLine();
+        if(event.keyCode == 38){
+            if(menuactive){
+                if(currentOptionMenu>=0)
+                    currentOptionMenu--;
+                startVoiceText((currentOptionMenu+1) + " " + menuopcao[currentOptionMenu].lable);
+            }else{
+             gotoPriorLine();
+            }
+        }
         
         //arrow right
         if(event.keyCode == 39){
@@ -276,7 +307,7 @@ $(window).load( function() {
     });
     beautify = ace.require("ace/ext/beautify"); // get reference to extension
     //remove auto complete
-    editor.setBehavioursEnabled(true);
+    editor.setBehavioursEnabled(false);
     //editor.enableEstimationTimeout = false
     editor.setOptions({
         enableBasicAutocompletion: true,
@@ -453,7 +484,11 @@ function fomatCode(){
     beautify.beautify(editor.session);
 }
 
-/* get text menu */
+function activeMenu(){
+    startVoiceText("Menu ativo ");
+    menuactive = true;
+}
+/* get text menu OLD */
 function getMenu(){
     
     text = "Lista de comandos. ";
@@ -673,6 +708,13 @@ function readLastWordTyped(){
     var lines = editor.getValue().split("\n");
     var line = lines[number].split(" ");
     var lastWord = line[line.length-2];
-    startVoiceText(lastWord);
+    startVoiceText(lastWord + " espaço ");
     console.log(line);
+}
+
+
+function startRunCode(){
+    classname = getNameClasse();
+    run(  classname );
+    $("#name-file").text(classname+".java");
 }
